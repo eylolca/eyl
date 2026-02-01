@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title></title>
+<style>
+  body {
+    margin: 0;
+    background: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  canvas {
+    max-width: 100%;
+    height: auto;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+
+<script>
+const words = [
+  "seni seviyorum",
+  "bitanem",
+  "canım",
+  "bebeğim",
+  "uykucu"
+];
+
+const img = new Image();
+img.src = "foto.jpg";
+
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+let offset = 0;
+
+img.onload = () => {
+  canvas.width = img.width;
+  canvas.height = img.height;
+  animate();
+};
+
+function animate() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  ctx.drawImage(img, 0, 0);
+
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const d = imageData.data;
+
+  for (let i = 0; i < d.length; i += 4) {
+    const g = (d[i] + d[i+1] + d[i+2]) / 3;
+    d[i] = d[i+1] = d[i+2] = g;
+  }
+  ctx.putImageData(imageData, 0, 0);
+
+  ctx.globalCompositeOperation = "source-in";
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = "black";
+  ctx.font = "20px serif";
+
+  let y = 30;
+  let w = 0;
+
+  while (y < canvas.height) {
+    let x = -(offset % 200);
+    while (x < canvas.width) {
+      ctx.fillText(words[w], x, y);
+      x += ctx.measureText(words[w]).width + 25;
+      w = (w + 1) % words.length;
+    }
+    y += 30;
+  }
+
+  ctx.globalCompositeOperation = "source-over";
+  offset += 0.25;
+  requestAnimationFrame(animate);
+}
+</script>
+
+</body>
+</html>
